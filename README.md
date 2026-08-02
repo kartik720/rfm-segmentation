@@ -40,4 +40,37 @@ Static preview below — click through for the interactive Plotly versions (zoom
 - [Frequency by segment (interactive)](https://kartik720.github.io/rfm-segmentation/charts/frequency_boxplot.html)
 - [Monetary by segment (interactive)](https://kartik720.github.io/rfm-segmentation/charts/monetary_boxplot.html)
 
-## Repository Structure=
+## Repository Structure
+
+```
+rfm-segmentation/
+├── README.md
+├── BUSINESS_INTERPRETATION.md
+├── notebook/
+│   └── RFM_customer_segmentation.ipynb
+├── sql/
+│   ├── dimensions_table.sql
+│   └── RFM_raw_query.sql
+├── src/
+│   └── olist.py
+├── images/
+├── charts/
+└── docs/
+    └── index.html
+```
+
+| File/Folder | Purpose |
+|---|---|
+| `README.md` | Project overview, key insight, and links to all resources |
+| `BUSINESS_INTERPRETATION.md` | Full segment-by-segment retention recommendations |
+| `notebook/` | Complete analysis notebook — SQL pipeline, RFM scoring, visualizations |
+| `sql/dimensions_table.sql` | Star schema build (fact + dimension tables) |
+| `sql/RFM_raw_query.sql` | Base RFM dataset extraction query |
+| `src/olist.py` | Loads raw Olist CSVs into MySQL |
+| `images/` | Static chart exports (segment counts, score distribution, revenue concentration) |
+| `charts/` | Interactive Plotly exports (R/F/M distributions by segment) |
+| `docs/` | GitHub Pages site embedding the interactive charts |
+
+## Notebook
+
+Full analysis, code, and narrative → [RFM_customer_segmentation.ipynb](notebook/RFM_customer_segmentation.ipynb)
