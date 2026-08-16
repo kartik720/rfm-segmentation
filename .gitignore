@@ -5,3 +5,5 @@ venv/
 *.csv
 csv_files/
 csv_files_kaggle/
+
+local/
