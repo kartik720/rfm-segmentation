@@ -1,554 +1,1227 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RFM Customer Segmentation — Kartik Vaish</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink: #14232f;
-    --ink-soft: #3c4b57;
-    --paper: #f7f6f2;
-    --paper-alt: #eeece4;
-    --card: #ffffff;
-    --line: #dedace;
-    --blue: #2b6cb0;
-    --blue-dark: #184a7c;
-    --amber: #c9862b;
-    --amber-dark: #8f5f1c;
-    --red: #b8524f;
-    --green: #3f8f47;
-    --purple: #7c5cbf;
-    --gray-muted: #93897a;
-    --serif: "Source Serif 4", Georgia, serif;
-    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --mono: "IBM Plex Mono", monospace;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    font-family: var(--sans);
-    background: var(--paper);
-    color: var(--ink);
-    line-height: 1.6;
-  }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 0 28px; }
-  section { padding: 64px 0; }
-  section.alt { background: var(--paper-alt); }
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--amber-dark);
-    margin: 0 0 14px;
-  }
-  h1 {
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: clamp(2rem, 4.4vw, 3.1rem);
-    line-height: 1.12;
-    margin: 0 0 18px;
-    letter-spacing: -0.01em;
-  }
-  h2 {
-    font-family: var(--serif);
-    font-weight: 700;
-    font-size: 1.65rem;
-    margin: 0 0 8px;
-    letter-spacing: -0.005em;
-  }
-  h3 {
-    font-family: var(--serif);
-    font-weight: 600;
-    font-size: 1.15rem;
-    margin: 0 0 6px;
-  }
-  .section-kicker {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--gray-muted);
-    margin: 0 0 6px;
-  }
-  p { margin: 0 0 1em; color: var(--ink-soft); }
-  .lede {
-    font-size: 1.18rem;
-    color: var(--ink-soft);
-    max-width: 620px;
-    margin: 0 0 30px;
-  }
-  a { color: var(--blue-dark); }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RFM Customer Segmentation — Kartik Vaish</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #14232f;
+      --ink-soft: #3c4b57;
+      --paper: #f7f6f2;
+      --paper-alt: #eeece4;
+      --card: #ffffff;
+      --line: #dedace;
+      --blue: #2b6cb0;
+      --blue-dark: #184a7c;
+      --amber: #c9862b;
+      --amber-dark: #8f5f1c;
+      --red: #b8524f;
+      --green: #3f8f47;
+      --purple: #7c5cbf;
+      --gray-muted: #93897a;
+      --serif: "Source Serif 4", Georgia, serif;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "IBM Plex Mono", monospace;
+    }
 
-  .hero { padding: 76px 0 56px; }
-  .hero-meta { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 0 0 34px; }
-  .badge {
-    font-family: var(--mono); font-size: 12px;
-    background: var(--card); border: 1px solid var(--line);
-    color: var(--ink-soft); padding: 5px 11px; border-radius: 20px;
-  }
-  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-  .btn {
-    font-family: var(--sans); font-weight: 600; font-size: 14.5px;
-    padding: 11px 20px; border-radius: 7px; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 7px;
-  }
-  .btn-primary { background: var(--ink); color: #fff; }
-  .btn-secondary { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
-  .btn:hover { opacity: 0.85; }
+    * {
+      box-sizing: border-box;
+    }
 
-  .stat-block {
-    display: flex; align-items: stretch; gap: 0;
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 14px; overflow: hidden; margin-top: 40px;
-  }
-  .stat-half { flex: 1; padding: 30px 26px; position: relative; }
-  .stat-half + .stat-half { border-left: 1px solid var(--line); }
-  .stat-num { font-family: var(--serif); font-weight: 700; font-size: 3rem; line-height: 1; margin-bottom: 6px; }
-  .stat-num.customers { color: var(--ink); }
-  .stat-num.revenue { color: var(--amber-dark); }
-  .stat-label { font-size: 13.5px; color: var(--ink-soft); }
-  .stat-caption {
-    padding: 16px 26px; font-family: var(--mono); font-size: 12.5px;
-    color: var(--ink-soft); background: var(--paper-alt);
-    border-top: 1px solid var(--line);
-  }
+    html {
+      scroll-behavior: smooth;
+    }
 
-  .stack-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
-  .stack-pill {
-    font-family: var(--mono); font-size: 12.5px;
-    background: var(--paper); border: 1px solid var(--line);
-    padding: 5px 12px; border-radius: 5px; color: var(--ink-soft);
-  }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
 
-  .method-list { display: flex; flex-direction: column; gap: 0; margin-top: 28px; }
-  .method-item { display: flex; gap: 22px; padding: 22px 0; border-top: 1px solid var(--line); }
-  .method-item:last-child { border-bottom: 1px solid var(--line); }
-  .method-num { font-family: var(--serif); font-weight: 700; font-size: 1.6rem; color: var(--line); min-width: 44px; }
-  .method-body h3 { margin-bottom: 4px; }
-  .method-body p { margin: 0; font-size: 15px; }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
 
-  .segment-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; margin-bottom: 16px; }
-  .segment-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-  .segment-name { font-family: var(--serif); font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; gap: 9px; }
-  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-  .segment-count { font-family: var(--mono); font-size: 12.5px; color: var(--gray-muted); }
-  .value-gap { margin: 12px 0 14px; }
-  .gap-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-  .gap-label { font-family: var(--mono); font-size: 11.5px; color: var(--gray-muted); width: 62px; flex-shrink: 0; }
-  .gap-track { flex: 1; height: 10px; background: var(--paper-alt); border-radius: 5px; overflow: hidden; }
-  .gap-fill { height: 100%; border-radius: 5px; }
-  .gap-pct { font-family: var(--mono); font-size: 12.5px; width: 46px; text-align: right; color: var(--ink-soft); }
-  .segment-desc { font-size: 14.5px; margin: 10px 0 8px; }
-  .segment-rec { font-size: 13.5px; color: var(--ink-soft); border-left: 2px solid var(--line); padding-left: 12px; margin: 0; }
+    section {
+      padding: 64px 0;
+    }
 
-  .img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 24px; }
-  .img-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .img-card img { width: 100%; display: block; }
-  .img-caption { font-size: 13px; color: var(--ink-soft); padding: 10px 14px; border-top: 1px solid var(--line); }
+    section.alt {
+      background: var(--paper-alt);
+    }
 
-  .chart-block { margin-top: 34px; }
-  .chart-block h3 { margin-bottom: 4px; }
-  .chart-desc { font-size: 14px; margin-bottom: 12px; }
-  .chart-frame { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  iframe { width: 100%; height: 460px; border: none; display: block; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--amber-dark);
+      margin: 0 0 14px;
+    }
 
-  .chart-scrim {
-    position: fixed; inset: 0;
-    background: rgba(20, 35, 47, 0.55);
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.2s ease;
-    z-index: 40;
-  }
-  .chart-scrim.is-visible { opacity: 1; pointer-events: auto; }
+    h1 {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: clamp(2rem, 4.4vw, 3.1rem);
+      line-height: 1.12;
+      margin: 0 0 18px;
+      letter-spacing: -0.01em;
+    }
 
-  .chart-frame {
-    position: relative; z-index: 1;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .chart-frame.is-active {
-    z-index: 50;
-    transform: scale(1.04);
-    box-shadow: 0 18px 48px rgba(20, 35, 47, 0.35);
-  }
+    h2 {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.65rem;
+      margin: 0 0 8px;
+      letter-spacing: -0.005em;
+    }
 
-  body.no-scroll { overflow: hidden; }
+    h3 {
+      font-family: var(--serif);
+      font-weight: 600;
+      font-size: 1.15rem;
+      margin: 0 0 6px;
+    }
 
-  .takeaway-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
-  .takeaway-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
-  .takeaway-card h3 { font-size: 1rem; margin-bottom: 6px; }
-  .takeaway-card p { font-size: 13.8px; margin: 0; }
+    .section-kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gray-muted);
+      margin: 0 0 6px;
+    }
 
-  .link-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 24px; }
-  .link-card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
-    padding: 18px 18px; text-decoration: none; color: var(--ink);
-    transition: border-color 0.15s; display: block;
-  }
-  .link-card:hover { border-color: var(--blue); }
-  .link-card .link-title { font-weight: 600; font-size: 14.5px; margin-bottom: 4px; }
-  .link-card .link-desc { font-size: 12.5px; color: var(--gray-muted); }
+    p {
+      margin: 0 0 1em;
+      color: var(--ink-soft);
+    }
 
-  footer { padding: 40px 0 60px; text-align: center; }
-  footer p { font-size: 13px; color: var(--gray-muted); }
-  footer a { color: var(--ink-soft); }
+    .lede {
+      font-size: 1.18rem;
+      color: var(--ink-soft);
+      max-width: 620px;
+      margin: 0 0 30px;
+    }
 
-  @media (max-width: 640px) {
-    section { padding: 44px 0; }
-    .stat-block { flex-direction: column; }
-    .stat-half + .stat-half { border-left: none; border-top: 1px solid var(--line); }
-    .img-grid { grid-template-columns: 1fr; }
-    .takeaway-grid { grid-template-columns: 1fr; }
-    .link-grid { grid-template-columns: 1fr; }
-    iframe { height: 380px; }
-  }
-</style>
-</head>
-<body>
+    a {
+      color: var(--blue-dark);
+    }
 
-<div class="wrap hero">
-  <p class="eyebrow">Data analytics case study</p>
-  <h1>Customer segmentation using RFM analysis</h1>
-  <p class="lede">A full pipeline — MySQL, Python, and interactive visualization — built to answer one question: which customers actually drive an e-commerce business's revenue, and what should be done about the rest?</p>
+    .hero {
+      padding-top: 76px;
+      padding-bottom: 56px;
+    }
 
-  <div class="hero-meta">
-    <span class="badge">93,358 customers</span>
-    <span class="badge">Olist Brazilian E-Commerce (Kaggle)</span>
-    <span class="badge">2016–2018</span>
-    <span class="badge">MySQL · Python · Plotly</span>
-  </div>
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      margin: 0 0 34px;
+    }
 
-  <div class="stat-block">
-    <div class="stat-half">
-      <div class="stat-num customers">56%</div>
-      <div class="stat-label">of customers are Big Spenders or At Risk</div>
-    </div>
-    <div class="stat-half">
-      <div class="stat-num revenue">83%</div>
-      <div class="stat-label">of all revenue comes from that same 56%</div>
-    </div>
-  </div>
-  <div class="stat-caption">The headline finding — full breakdown below.</div>
+    .badge {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      padding: 5px 11px;
+      border-radius: 20px;
+    }
 
-  <div class="cta-row">
-    <a class="btn btn-primary" href="https://github.com/kartik720/rfm-segmentation">View repository</a>
-    <a class="btn btn-secondary" href="https://github.com/kartik720/rfm-segmentation/blob/main/notebook/RFM_customer_segmentation.ipynb">Full notebook</a>
-    <a class="btn btn-secondary" href="https://github.com/kartik720/rfm-segmentation/blob/main/BUSINESS_INTERPRETATION.md">Business interpretation</a>
-  </div>
-</div>
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
 
-<section class="alt">
-  <div class="wrap">
-    <p class="section-kicker">Overview</p>
-    <h2>What this project does</h2>
-    <p>RFM (Recency, Frequency, Monetary) is a customer segmentation framework built on three behavioral signals: how recently a customer last ordered, how often they order, and how much they spend. This project applies it end-to-end to 93,358 real customers from the Brazilian E-Commerce Public Dataset by Olist — a multi-table dataset chosen specifically because it required genuine relational joins across orders, customers, products, and sellers, rather than a single flat CSV.</p>
-    <p>The pipeline runs from raw data through a production-style MySQL star schema, custom RFM scoring logic in Python, five behaviorally distinct customer segments, and a full interactive visualization suite — ending in a concrete, data-backed retention strategy.</p>
-    <div class="stack-list">
-      <span class="stack-pill">MySQL</span>
-      <span class="stack-pill">Python / Pandas</span>
-      <span class="stack-pill">SQLAlchemy</span>
-      <span class="stack-pill">Matplotlib / Seaborn</span>
-      <span class="stack-pill">Plotly</span>
-      <span class="stack-pill">Jupyter Notebook</span>
-    </div>
-  </div>
-</section>
+    .btn {
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 14.5px;
+      padding: 11px 20px;
+      border-radius: 7px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
 
-<section>
-  <div class="wrap">
-    <p class="section-kicker">Methodology</p>
-    <h2>How it was built</h2>
-    <div class="method-list">
-      <div class="method-item">
-        <div class="method-num">01</div>
-        <div class="method-body">
-          <h3>Data pipeline</h3>
-          <p>Olist's raw CSVs loaded into MySQL and joined into a star schema — <code>order_items</code> as the fact table at line-item grain, with <code>dim_customers</code>, <code>dim_products</code>, and <code>dim_sellers</code> as dimension tables. The base RFM dataset was pulled via a 3-table SQL join, filtered to delivered orders only.</p>
-        </div>
-      </div>
-      <div class="method-item">
-        <div class="method-num">02</div>
-        <div class="method-body">
-          <h3>RFM scoring</h3>
-          <p>Recency and Monetary were scored using quantile binning (<code>pd.qcut</code>). Frequency required a different approach: with ~97% of customers being one-time buyers, quantile scoring collapses into meaningless buckets — so Frequency was manually bucketed instead (1→1, 2→2, 3→3, 4→4, 5+→5).</p>
-        </div>
-      </div>
-      <div class="method-item">
-        <div class="method-num">03</div>
-        <div class="method-body">
-          <h3>Segmentation</h3>
-          <p>Customers were placed into five segments using R×M quadrant logic, with Frequency acting as an override flag for genuine repeat buyers — turning three separate scores into one clear behavioral label per customer.</p>
-        </div>
-      </div>
-      <div class="method-item">
-        <div class="method-num">04</div>
-        <div class="method-body">
-          <h3>Visualization &amp; interpretation</h3>
-          <p>Segment sizes, R/F/M distributions, score distribution, and — most importantly — revenue concentration by segment, translated into a concrete, segment-specific retention strategy.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+    }
 
-<section class="alt">
-  <div class="wrap">
-    <p class="section-kicker">Segments</p>
-    <h2>Five segments, one clear imbalance</h2>
-    <p class="lede" style="margin-bottom:26px;">Each bar compares a segment's share of the customer base against its share of total revenue — the gap between the two bars is the entire business case.</p>
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--line);
+    }
 
-    <div class="segment-card">
-      <div class="segment-head">
-        <div class="segment-name"><span class="dot" style="background:var(--blue);"></span>Big Spenders</div>
-        <div class="segment-count">31,567 customers</div>
-      </div>
-      <div class="value-gap">
-        <div class="gap-row">
-          <span class="gap-label">Customers</span>
-          <div class="gap-track"><div class="gap-fill" style="width:33.8%; background:var(--blue);"></div></div>
-          <span class="gap-pct">33.8%</span>
-        </div>
-        <div class="gap-row">
-          <span class="gap-label">Revenue</span>
-          <div class="gap-track"><div class="gap-fill" style="width:49.3%; background:var(--amber);"></div></div>
-          <span class="gap-pct">49.3%</span>
-        </div>
-      </div>
-      <p class="segment-desc">High recency and high monetary value — the single largest revenue block.</p>
-      <p class="segment-rec">Recommendation: VIP / loyalty program to prevent slippage into At Risk over time.</p>
-    </div>
+    .btn:hover {
+      opacity: 0.85;
+    }
 
-    <div class="segment-card">
-      <div class="segment-head">
-        <div class="segment-name"><span class="dot" style="background:var(--red);"></span>At Risk</div>
-        <div class="segment-count">20,494 customers</div>
-      </div>
-      <div class="value-gap">
-        <div class="gap-row">
-          <span class="gap-label">Customers</span>
-          <div class="gap-track"><div class="gap-fill" style="width:22.0%; background:var(--red);"></div></div>
-          <span class="gap-pct">22.0%</span>
-        </div>
-        <div class="gap-row">
-          <span class="gap-label">Revenue</span>
-          <div class="gap-track"><div class="gap-fill" style="width:33.4%; background:var(--amber);"></div></div>
-          <span class="gap-pct">33.4%</span>
-        </div>
-      </div>
-      <p class="segment-desc">High historical spend, but recency has dropped — proven value gone quiet.</p>
-      <p class="segment-rec">Recommendation: highest-ROI recovery target — targeted win-back campaigns before full churn.</p>
-    </div>
+    .stat-block {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 40px;
+    }
 
-    <div class="segment-card">
-      <div class="segment-head">
-        <div class="segment-name"><span class="dot" style="background:var(--green);"></span>New / Promising</div>
-        <div class="segment-count">22,762 customers</div>
-      </div>
-      <div class="value-gap">
-        <div class="gap-row">
-          <span class="gap-label">Customers</span>
-          <div class="gap-track"><div class="gap-fill" style="width:24.4%; background:var(--green);"></div></div>
-          <span class="gap-pct">24.4%</span>
-        </div>
-        <div class="gap-row">
-          <span class="gap-label">Revenue</span>
-          <div class="gap-track"><div class="gap-fill" style="width:6.9%; background:var(--amber);"></div></div>
-          <span class="gap-pct">6.9%</span>
-        </div>
-      </div>
-      <p class="segment-desc">Recent purchasers with low monetary value so far — unproven, not disqualified.</p>
-      <p class="segment-rec">Recommendation: conversion play — onboarding sequences and second-purchase incentives.</p>
-    </div>
+    .stat-half {
+      flex: 1;
+      padding: 30px 26px;
+      position: relative;
+    }
 
-    <div class="segment-card">
-      <div class="segment-head">
-        <div class="segment-name"><span class="dot" style="background:var(--purple);"></span>Repeat Customers</div>
-        <div class="segment-count">2,801 customers</div>
-      </div>
-      <div class="value-gap">
-        <div class="gap-row">
-          <span class="gap-label">Customers</span>
-          <div class="gap-track"><div class="gap-fill" style="width:3.0%; background:var(--purple);"></div></div>
-          <span class="gap-pct">3.0%</span>
-        </div>
-        <div class="gap-row">
-          <span class="gap-label">Revenue</span>
-          <div class="gap-track"><div class="gap-fill" style="width:5.5%; background:var(--amber);"></div></div>
-          <span class="gap-pct">5.5%</span>
-        </div>
-      </div>
-      <p class="segment-desc">The frequency-override segment — small, but genuinely proven repeat buyers.</p>
-      <p class="segment-rec">Recommendation: study what drives their repeat behavior and replicate it into New/Promising.</p>
-    </div>
+    .stat-half+.stat-half {
+      border-left: 1px solid var(--line);
+    }
 
-    <div class="segment-card">
-      <div class="segment-head">
-        <div class="segment-name"><span class="dot" style="background:var(--gray-muted);"></span>Lost</div>
-        <div class="segment-count">15,734 customers</div>
-      </div>
-      <div class="value-gap">
-        <div class="gap-row">
-          <span class="gap-label">Customers</span>
-          <div class="gap-track"><div class="gap-fill" style="width:16.9%; background:var(--gray-muted);"></div></div>
-          <span class="gap-pct">16.9%</span>
-        </div>
-        <div class="gap-row">
-          <span class="gap-label">Revenue</span>
-          <div class="gap-track"><div class="gap-fill" style="width:4.9%; background:var(--amber);"></div></div>
-          <span class="gap-pct">4.9%</span>
-        </div>
-      </div>
-      <p class="segment-desc">Low recency, low monetary value.</p>
-      <p class="segment-rec">Recommendation: lowest priority — light-touch, low-cost reactivation only.</p>
-    </div>
-  </div>
-</section>
+    .stat-num {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
 
-<section>
-  <div class="wrap">
-    <p class="section-kicker">Visualizations</p>
-    <h2>Static charts</h2>
-    <div class="img-grid">
-      <div class="img-card">
-        <img src="images/customer_count_by_segment.png" alt="Customer count by segment">
-        <div class="img-caption">Segment size — customer count per segment.</div>
-      </div>
-      <div class="img-card">
-        <img src="images/rfm_score_distribution.png" alt="RFM score distribution">
-        <div class="img-caption">Distribution of combined RFM scores across all customers.</div>
-      </div>
-      <div class="img-card">
-        <img src="images/revenue_concentration.png" alt="Revenue concentration by segment">
-        <div class="img-caption">Revenue concentration — % customers vs. % revenue per segment.</div>
-      </div>
-      <div class="img-card">
-        <img src="images/rfm_distributions_preview.png" alt="R/F/M distributions preview">
-        <div class="img-caption">Static preview of R/F/M distributions — interactive versions below.</div>
-      </div>
-    </div>
+    .stat-num.customers {
+      color: var(--ink);
+    }
 
-    <div class="chart-block">
-      <h3>Recency by segment</h3>
-      <p class="chart-desc">Days since each customer's last order, grouped by segment. Interactive — zoom and hover for exact values.</p>
-      <div class="chart-frame"><iframe src="charts/recency_boxplot.html" title="Recency by segment"></iframe></div>
-    </div>
+    .stat-num.revenue {
+      color: var(--amber-dark);
+    }
 
-    <div class="chart-block">
-      <h3>Frequency by segment</h3>
-      <p class="chart-desc">Distinct order count per customer. Zoom in on non-Repeat segments — they're flat at a frequency of 1 due to the dataset's ~97% one-time-buyer skew, confirmed as real data behavior rather than a rendering artifact.</p>
-      <div class="chart-frame"><iframe src="charts/frequency_boxplot.html" title="Frequency by segment"></iframe></div>
-    </div>
+    .stat-label {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+    }
 
-    <div class="chart-block">
-      <h3>Monetary by segment</h3>
-      <p class="chart-desc">Total spend per customer, log-scaled due to high-spend outliers, grouped by segment.</p>
-      <div class="chart-frame"><iframe src="charts/monetary_boxplot.html" title="Monetary by segment"></iframe></div>
-    </div>
-  </div>
-</section>
+    .stat-caption {
+      padding: 16px 26px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      background: var(--paper-alt);
+      border-top: 1px solid var(--line);
+    }
 
-<section class="alt">
-  <div class="wrap">
-    <p class="section-kicker">Business interpretation</p>
-    <h2>What a business should actually do with this</h2>
-    <p class="lede" style="margin-bottom:22px;">Segment size and segment value are not aligned — retention strategy should follow revenue, not headcount.</p>
-    <div class="takeaway-grid">
-      <div class="takeaway-card">
-        <h3>Priority 1 — At Risk</h3>
-        <p>Proven high-value customers who've gone quiet. Highest-ROI recovery target on the list — win them back before they fully churn.</p>
-      </div>
-      <div class="takeaway-card">
-        <h3>Priority 2 — Big Spenders</h3>
-        <p>Currently the top revenue driver, but at risk of slippage without a reason to stay. A loyalty program locks in the relationship.</p>
-      </div>
-      <div class="takeaway-card">
-        <h3>Convert — New/Promising</h3>
-        <p>Largest segment by headcount, smallest by revenue. Needs onboarding and second-purchase incentives, not retention spend.</p>
-      </div>
-      <div class="takeaway-card">
-        <h3>Deprioritize — Lost</h3>
-        <p>Low value, low recency. Light-touch reactivation only — resources are better spent recovering At Risk customers.</p>
-      </div>
-    </div>
-    <p style="margin-top:20px;"><a href="https://github.com/kartik720/rfm-segmentation/blob/main/BUSINESS_INTERPRETATION.md">Read the full segment-by-segment writeup →</a></p>
-  </div>
-</section>
+    .stack-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 18px 0 0;
+    }
 
-<section>
-  <div class="wrap">
-    <p class="section-kicker">Go deeper</p>
-    <h2>Explore the project</h2>
-    <div class="link-grid">
-      <a class="link-card" href="https://github.com/kartik720/rfm-segmentation">
-        <div class="link-title">Repository</div>
-        <div class="link-desc">Full source — SQL, notebook, code, and structure</div>
-      </a>
-      <a class="link-card" href="https://github.com/kartik720/rfm-segmentation/blob/main/notebook/RFM_customer_segmentation.ipynb">
-        <div class="link-title">Notebook</div>
-        <div class="link-desc">Complete analysis, code, and narrative walkthrough</div>
-      </a>
-      <a class="link-card" href="https://github.com/kartik720/rfm-segmentation/tree/main/sql">
-        <div class="link-title">SQL</div>
-        <div class="link-desc">Star schema build and the base RFM query</div>
-      </a>
-    </div>
-  </div>
-</section>
+    .stack-pill {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 5px 12px;
+      border-radius: 5px;
+      color: var(--ink-soft);
+    }
 
-<footer>
-  <div class="wrap">
-    <p>Built by <a href="https://github.com/kartik720">Kartik Vaish</a> — dataset: Brazilian E-Commerce Public Dataset by Olist (Kaggle)</p>
-  </div>
-</footer>
+    .method-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 28px;
+    }
 
-<script>
-(function() {
-  var scrim = document.createElement('div');
-  scrim.className = 'chart-scrim';
-  document.body.appendChild(scrim);
+    .method-item {
+      display: flex;
+      gap: 22px;
+      padding: 22px 0;
+      border-top: 1px solid var(--line);
+    }
 
-  var activeFrame = null;
-  var activeWindow = null;
+    .method-item:last-child {
+      border-bottom: 1px solid var(--line);
+    }
 
-  function activateFrame(win) {
-    var iframes = document.querySelectorAll('.chart-frame iframe');
-    for (var i = 0; i < iframes.length; i++) {
-      if (iframes[i].contentWindow === win) {
-        activeFrame = iframes[i].closest('.chart-frame');
-        activeWindow = win;
-        break;
+    .method-num {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: var(--line);
+      min-width: 44px;
+    }
+
+    .method-body h3 {
+      margin-bottom: 4px;
+    }
+
+    .method-body p {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .segment-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+
+    .segment-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .segment-name {
+      font-family: var(--serif);
+      font-weight: 700;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .segment-count {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--gray-muted);
+    }
+
+    .value-gap {
+      margin: 12px 0 14px;
+    }
+
+    .gap-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .gap-label {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--gray-muted);
+      width: 62px;
+      flex-shrink: 0;
+    }
+
+    .gap-track {
+      flex: 1;
+      height: 10px;
+      background: var(--paper-alt);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .gap-fill {
+      height: 100%;
+      border-radius: 5px;
+    }
+
+    .gap-pct {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      width: 46px;
+      text-align: right;
+      color: var(--ink-soft);
+    }
+
+    .segment-desc {
+      font-size: 14.5px;
+      margin: 10px 0 8px;
+    }
+
+    .segment-rec {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      border-left: 2px solid var(--line);
+      padding-left: 12px;
+      margin: 0;
+    }
+
+    .img-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    .img-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .img-card img {
+      width: 100%;
+      display: block;
+    }
+
+    .img-caption {
+      font-size: 13px;
+      color: var(--ink-soft);
+      padding: 10px 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .img-card img {
+      cursor: zoom-in;
+    }
+
+    .img-lightbox {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.92);
+      max-width: 90vw;
+      max-height: 85vh;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      border-radius: 10px;
+      box-shadow: 0 24px 64px rgba(20, 35, 47, 0.45);
+      cursor: zoom-in;
+      touch-action: none;
+    }
+
+    .img-lightbox.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .img-lightbox.is-zoomed {
+      cursor: grab;
+    }
+
+    .img-lightbox.is-panning {
+      cursor: grabbing;
+    }
+
+    .img-lightbox.is-tracking {
+      transition: opacity 0.2s ease;
+    }
+
+    body.img-no-scroll {
+      overflow: hidden;
+    }
+
+    .chart-block {
+      margin-top: 34px;
+    }
+
+    .chart-block h3 {
+      margin-bottom: 4px;
+    }
+
+    .chart-desc {
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .chart-frame {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: 460px;
+      border: none;
+      display: block;
+    }
+
+    .chart-scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 35, 47, 0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 40;
+    }
+
+    .chart-scrim.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chart-frame {
+      position: relative;
+      z-index: 1;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chart-frame.is-active {
+      z-index: 50;
+      transform: scale(1.04);
+      box-shadow: 0 18px 48px rgba(20, 35, 47, 0.35);
+    }
+
+    body.no-scroll {
+      overflow: hidden;
+    }
+
+    .takeaway-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .takeaway-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+
+    .takeaway-card h3 {
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+
+    .takeaway-card p {
+      font-size: 13.8px;
+      margin: 0;
+    }
+
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .link-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 18px;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-color 0.15s;
+      display: block;
+    }
+
+    .link-card:hover {
+      border-color: var(--blue);
+    }
+
+    .link-card .link-title {
+      font-weight: 600;
+      font-size: 14.5px;
+      margin-bottom: 4px;
+    }
+
+    .link-card .link-desc {
+      font-size: 12.5px;
+      color: var(--gray-muted);
+    }
+
+    footer {
+      padding: 40px 0 60px;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 13px;
+      color: var(--gray-muted);
+    }
+
+    footer a {
+      color: var(--ink-soft);
+    }
+
+    @media (max-width: 640px) {
+      section {
+        padding: 44px 0;
+      }
+
+      .stat-block {
+        flex-direction: column;
+      }
+
+      .stat-half+.stat-half {
+        border-left: none;
+        border-top: 1px solid var(--line);
+      }
+
+      .img-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .takeaway-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .link-grid {
+        grid-template-columns: 1fr;
+      }
+
+      iframe {
+        height: 380px;
+      }
+
+      .method-item {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .method-num {
+        font-size: 1.2rem;
+        min-width: 0;
+      }
+
+      .chart-frame.is-active {
+        transform: scale(1.02);
       }
     }
-    if (!activeFrame) return;
-    activeFrame.classList.add('is-active');
-    scrim.classList.add('is-visible');
-    document.body.classList.add('no-scroll');
-  }
+  </style>
+</head>
 
-  function deactivateFrame() {
-    if (!activeFrame) return;
-    activeFrame.classList.remove('is-active');
-    scrim.classList.remove('is-visible');
-    document.body.classList.remove('no-scroll');
-    if (activeWindow) activeWindow.postMessage({type: 'rfm-chart-deactivate'}, '*');
-    activeFrame = null;
-    activeWindow = null;
-  }
+<body>
 
-  window.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'rfm-chart-activate') activateFrame(e.source);
-  });
+  <div class="wrap hero">
+    <p class="eyebrow">Data analytics case study</p>
+    <h1>Customer segmentation using RFM analysis</h1>
+    <p class="lede">A full pipeline — MySQL, Python, and interactive visualization — built to answer one question: which
+      customers actually drive an e-commerce business's revenue, and what should be done about the rest?</p>
 
-  // any click the parent page itself sees is, by definition, outside every
-  // chart — a click inside an iframe never bubbles up to this listener
-  document.addEventListener('click', function() { deactivateFrame(); });
-})();
-</script>
+    <div class="hero-meta">
+      <span class="badge">93,358 customers</span>
+      <span class="badge">Olist Brazilian E-Commerce (Kaggle)</span>
+      <span class="badge">2016–2018</span>
+      <span class="badge">MySQL · Python · Plotly</span>
+    </div>
+
+    <div class="stat-block">
+      <div class="stat-half">
+        <div class="stat-num customers">56%</div>
+        <div class="stat-label">of customers are Big Spenders or At Risk</div>
+      </div>
+      <div class="stat-half">
+        <div class="stat-num revenue">83%</div>
+        <div class="stat-label">of all revenue comes from that same 56%</div>
+      </div>
+    </div>
+    <div class="stat-caption">The headline finding — full breakdown below.</div>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/kartik720/rfm-segmentation">View repository</a>
+      <a class="btn btn-secondary"
+        href="https://github.com/kartik720/rfm-segmentation/blob/main/notebook/RFM_customer_segmentation.ipynb">Full
+        notebook</a>
+      <a class="btn btn-secondary"
+        href="https://github.com/kartik720/rfm-segmentation/blob/main/BUSINESS_INTERPRETATION.md">Business
+        interpretation</a>
+    </div>
+  </div>
+
+  <section class="alt">
+    <div class="wrap">
+      <p class="section-kicker">Overview</p>
+      <h2>What this project does</h2>
+      <p>RFM (Recency, Frequency, Monetary) is a customer segmentation framework built on three behavioral signals: how
+        recently a customer last ordered, how often they order, and how much they spend. This project applies it
+        end-to-end to 93,358 real customers from the Brazilian E-Commerce Public Dataset by Olist — a multi-table
+        dataset chosen specifically because it required genuine relational joins across orders, customers, products, and
+        sellers, rather than a single flat CSV.</p>
+      <p>The pipeline runs from raw data through a production-style MySQL star schema, custom RFM scoring logic in
+        Python, five behaviorally distinct customer segments, and a full interactive visualization suite — ending in a
+        concrete, data-backed retention strategy.</p>
+      <div class="stack-list">
+        <span class="stack-pill">MySQL</span>
+        <span class="stack-pill">Python / Pandas</span>
+        <span class="stack-pill">SQLAlchemy</span>
+        <span class="stack-pill">Matplotlib / Seaborn</span>
+        <span class="stack-pill">Plotly</span>
+        <span class="stack-pill">Jupyter Notebook</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="section-kicker">Methodology</p>
+      <h2>How it was built</h2>
+      <div class="method-list">
+        <div class="method-item">
+          <div class="method-num">01</div>
+          <div class="method-body">
+            <h3>Data pipeline</h3>
+            <p>Olist's raw CSVs loaded into MySQL and joined into a star schema — <code>order_items</code> as the fact
+              table at line-item grain, with <code>dim_customers</code>, <code>dim_products</code>, and
+              <code>dim_sellers</code> as dimension tables. The base RFM dataset was pulled via a 3-table SQL join,
+              filtered to delivered orders only.</p>
+          </div>
+        </div>
+        <div class="method-item">
+          <div class="method-num">02</div>
+          <div class="method-body">
+            <h3>RFM scoring</h3>
+            <p>Recency and Monetary were scored using quantile binning (<code>pd.qcut</code>). Frequency required a
+              different approach: with ~97% of customers being one-time buyers, quantile scoring collapses into
+              meaningless buckets — so Frequency was manually bucketed instead (1→1, 2→2, 3→3, 4→4, 5+→5).</p>
+          </div>
+        </div>
+        <div class="method-item">
+          <div class="method-num">03</div>
+          <div class="method-body">
+            <h3>Segmentation</h3>
+            <p>Customers were placed into five segments using R×M quadrant logic, with Frequency acting as an override
+              flag for genuine repeat buyers — turning three separate scores into one clear behavioral label per
+              customer.</p>
+          </div>
+        </div>
+        <div class="method-item">
+          <div class="method-num">04</div>
+          <div class="method-body">
+            <h3>Visualization &amp; interpretation</h3>
+            <p>Segment sizes, R/F/M distributions, score distribution, and — most importantly — revenue concentration by
+              segment, translated into a concrete, segment-specific retention strategy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <p class="section-kicker">Segments</p>
+      <h2>Five segments, one clear imbalance</h2>
+      <p class="lede" style="margin-bottom:26px;">Each bar compares a segment's share of the customer base against its
+        share of total revenue — the gap between the two bars is the entire business case.</p>
+
+      <div class="segment-card">
+        <div class="segment-head">
+          <div class="segment-name"><span class="dot" style="background:var(--blue);"></span>Big Spenders</div>
+          <div class="segment-count">31,567 customers</div>
+        </div>
+        <div class="value-gap">
+          <div class="gap-row">
+            <span class="gap-label">Customers</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:33.8%; background:var(--blue);"></div>
+            </div>
+            <span class="gap-pct">33.8%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">Revenue</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:49.3%; background:var(--amber);"></div>
+            </div>
+            <span class="gap-pct">49.3%</span>
+          </div>
+        </div>
+        <p class="segment-desc">High recency and high monetary value — the single largest revenue block.</p>
+        <p class="segment-rec">Recommendation: VIP / loyalty program to prevent slippage into At Risk over time.</p>
+      </div>
+
+      <div class="segment-card">
+        <div class="segment-head">
+          <div class="segment-name"><span class="dot" style="background:var(--red);"></span>At Risk</div>
+          <div class="segment-count">20,494 customers</div>
+        </div>
+        <div class="value-gap">
+          <div class="gap-row">
+            <span class="gap-label">Customers</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:22.0%; background:var(--red);"></div>
+            </div>
+            <span class="gap-pct">22.0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">Revenue</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:33.4%; background:var(--amber);"></div>
+            </div>
+            <span class="gap-pct">33.4%</span>
+          </div>
+        </div>
+        <p class="segment-desc">High historical spend, but recency has dropped — proven value gone quiet.</p>
+        <p class="segment-rec">Recommendation: highest-ROI recovery target — targeted win-back campaigns before full
+          churn.</p>
+      </div>
+
+      <div class="segment-card">
+        <div class="segment-head">
+          <div class="segment-name"><span class="dot" style="background:var(--green);"></span>New / Promising</div>
+          <div class="segment-count">22,762 customers</div>
+        </div>
+        <div class="value-gap">
+          <div class="gap-row">
+            <span class="gap-label">Customers</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:24.4%; background:var(--green);"></div>
+            </div>
+            <span class="gap-pct">24.4%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">Revenue</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:6.9%; background:var(--amber);"></div>
+            </div>
+            <span class="gap-pct">6.9%</span>
+          </div>
+        </div>
+        <p class="segment-desc">Recent purchasers with low monetary value so far — unproven, not disqualified.</p>
+        <p class="segment-rec">Recommendation: conversion play — onboarding sequences and second-purchase incentives.
+        </p>
+      </div>
+
+      <div class="segment-card">
+        <div class="segment-head">
+          <div class="segment-name"><span class="dot" style="background:var(--purple);"></span>Repeat Customers</div>
+          <div class="segment-count">2,801 customers</div>
+        </div>
+        <div class="value-gap">
+          <div class="gap-row">
+            <span class="gap-label">Customers</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:3.0%; background:var(--purple);"></div>
+            </div>
+            <span class="gap-pct">3.0%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">Revenue</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:5.5%; background:var(--amber);"></div>
+            </div>
+            <span class="gap-pct">5.5%</span>
+          </div>
+        </div>
+        <p class="segment-desc">The frequency-override segment — small, but genuinely proven repeat buyers.</p>
+        <p class="segment-rec">Recommendation: study what drives their repeat behavior and replicate it into
+          New/Promising.</p>
+      </div>
+
+      <div class="segment-card">
+        <div class="segment-head">
+          <div class="segment-name"><span class="dot" style="background:var(--gray-muted);"></span>Lost</div>
+          <div class="segment-count">15,734 customers</div>
+        </div>
+        <div class="value-gap">
+          <div class="gap-row">
+            <span class="gap-label">Customers</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:16.9%; background:var(--gray-muted);"></div>
+            </div>
+            <span class="gap-pct">16.9%</span>
+          </div>
+          <div class="gap-row">
+            <span class="gap-label">Revenue</span>
+            <div class="gap-track">
+              <div class="gap-fill" style="width:4.9%; background:var(--amber);"></div>
+            </div>
+            <span class="gap-pct">4.9%</span>
+          </div>
+        </div>
+        <p class="segment-desc">Low recency, low monetary value.</p>
+        <p class="segment-rec">Recommendation: lowest priority — light-touch, low-cost reactivation only.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="section-kicker">Visualizations</p>
+      <h2>Static charts</h2>
+      <div class="img-grid">
+        <div class="img-card">
+          <img src="images/customer_count_by_segment.png" alt="Customer count by segment">
+          <div class="img-caption">Segment size — customer count per segment.</div>
+        </div>
+        <div class="img-card">
+          <img src="images/rfm_score_distribution.png" alt="RFM score distribution">
+          <div class="img-caption">Distribution of combined RFM scores across all customers.</div>
+        </div>
+        <div class="img-card">
+          <img src="images/revenue_concentration.png" alt="Revenue concentration by segment">
+          <div class="img-caption">Revenue concentration — % customers vs. % revenue per segment.</div>
+        </div>
+        <div class="img-card">
+          <img src="images/rfm_distributions_preview.png" alt="R/F/M distributions preview">
+          <div class="img-caption">Static preview of R/F/M distributions — interactive versions below.</div>
+        </div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Recency by segment</h3>
+        <p class="chart-desc">Days since each customer's last order, grouped by segment. Interactive — zoom and hover
+          for exact values.</p>
+        <div class="chart-frame"><iframe src="charts/recency_boxplot.html" title="Recency by segment"></iframe></div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Frequency by segment</h3>
+        <p class="chart-desc">Distinct order count per customer. Zoom in on non-Repeat segments — they're flat at a
+          frequency of 1 due to the dataset's ~97% one-time-buyer skew, confirmed as real data behavior rather than a
+          rendering artifact.</p>
+        <div class="chart-frame"><iframe src="charts/frequency_boxplot.html" title="Frequency by segment"></iframe>
+        </div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Monetary by segment</h3>
+        <p class="chart-desc">Total spend per customer, log-scaled due to high-spend outliers, grouped by segment.</p>
+        <div class="chart-frame"><iframe src="charts/monetary_boxplot.html" title="Monetary by segment"></iframe></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt">
+    <div class="wrap">
+      <p class="section-kicker">Business interpretation</p>
+      <h2>What a business should actually do with this</h2>
+      <p class="lede" style="margin-bottom:22px;">Segment size and segment value are not aligned — retention strategy
+        should follow revenue, not headcount.</p>
+      <div class="takeaway-grid">
+        <div class="takeaway-card">
+          <h3>Priority 1 — At Risk</h3>
+          <p>Proven high-value customers who've gone quiet. Highest-ROI recovery target on the list — win them back
+            before they fully churn.</p>
+        </div>
+        <div class="takeaway-card">
+          <h3>Priority 2 — Big Spenders</h3>
+          <p>Currently the top revenue driver, but at risk of slippage without a reason to stay. A loyalty program locks
+            in the relationship.</p>
+        </div>
+        <div class="takeaway-card">
+          <h3>Convert — New/Promising</h3>
+          <p>Largest segment by headcount, smallest by revenue. Needs onboarding and second-purchase incentives, not
+            retention spend.</p>
+        </div>
+        <div class="takeaway-card">
+          <h3>Deprioritize — Lost</h3>
+          <p>Low value, low recency. Light-touch reactivation only — resources are better spent recovering At Risk
+            customers.</p>
+        </div>
+      </div>
+      <p style="margin-top:20px;"><a
+          href="https://github.com/kartik720/rfm-segmentation/blob/main/BUSINESS_INTERPRETATION.md">Read the full
+          segment-by-segment writeup →</a></p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="section-kicker">Go deeper</p>
+      <h2>Explore the project</h2>
+      <div class="link-grid">
+        <a class="link-card" href="https://github.com/kartik720/rfm-segmentation">
+          <div class="link-title">Repository</div>
+          <div class="link-desc">Full source — SQL, notebook, code, and structure</div>
+        </a>
+        <a class="link-card"
+          href="https://github.com/kartik720/rfm-segmentation/blob/main/notebook/RFM_customer_segmentation.ipynb">
+          <div class="link-title">Notebook</div>
+          <div class="link-desc">Complete analysis, code, and narrative walkthrough</div>
+        </a>
+        <a class="link-card" href="https://github.com/kartik720/rfm-segmentation/tree/main/sql">
+          <div class="link-title">SQL</div>
+          <div class="link-desc">Star schema build and the base RFM query</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>Built by <a href="https://github.com/kartik720">Kartik Vaish</a> — dataset: Brazilian E-Commerce Public Dataset
+        by Olist (Kaggle)</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var scrim = document.createElement('div');
+      scrim.className = 'chart-scrim';
+      document.body.appendChild(scrim);
+
+      var activeFrame = null;
+      var activeWindow = null;
+
+      function activateFrame(win) {
+        var iframes = document.querySelectorAll('.chart-frame iframe');
+        for (var i = 0; i < iframes.length; i++) {
+          if (iframes[i].contentWindow === win) {
+            activeFrame = iframes[i].closest('.chart-frame');
+            activeWindow = win;
+            break;
+          }
+        }
+        if (!activeFrame) return;
+        activeFrame.classList.add('is-active');
+        scrim.classList.add('is-visible');
+        document.body.classList.add('no-scroll');
+      }
+
+      function deactivateFrame() {
+        if (!activeFrame) return;
+        activeFrame.classList.remove('is-active');
+        scrim.classList.remove('is-visible');
+        document.body.classList.remove('no-scroll');
+        if (activeWindow) activeWindow.postMessage({ type: 'rfm-chart-deactivate' }, '*');
+        activeFrame = null;
+        activeWindow = null;
+      }
+
+      window.addEventListener('message', function (e) {
+        if (e.data && e.data.type === 'rfm-chart-activate') activateFrame(e.source);
+      });
+
+      // any click the parent page itself sees is, by definition, outside every
+      // chart — a click inside an iframe never bubbles up to this listener
+      document.addEventListener('click', function () { deactivateFrame(); });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      var imgScrim = document.createElement('div');
+      imgScrim.className = 'chart-scrim';
+      document.body.appendChild(imgScrim);
+
+      var lightbox = document.createElement('img');
+      lightbox.className = 'img-lightbox';
+      document.body.appendChild(lightbox);
+
+      var scale = 1;
+      var panX = 0;
+      var panY = 0;
+      var baseWidth = 0;
+      var baseHeight = 0;
+      var zoomedIn = false;
+      var isDragging = false;
+      var dragMoved = false;
+      var justDragged = false;
+      var justPinched = false;
+      var dragStartX = 0;
+      var dragStartY = 0;
+      var panStartX = 0;
+      var panStartY = 0;
+      var pinchStartDist = 0;
+      var pinchStartScale = 1;
+      var MAX_SCALE = 3;
+      var DRAG_THRESHOLD = 3;
+
+      function touchDistance(touches) {
+        var dx = touches[0].clientX - touches[1].clientX;
+        var dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      // 175% of the thumbnail's size, in both dimensions at once, then
+      // scaled down uniformly (preserving aspect ratio) if that would
+      // overflow the viewport in either direction — fixes wide/short
+      // images (like the R/F/M preview) overflowing before any zoom at all
+      function fitBaseSize(targetW, targetH) {
+        var maxW = window.innerWidth * 0.9;
+        var maxH = window.innerHeight * 0.85;
+        var fitScale = Math.min(1, maxW / targetW, maxH / targetH);
+        baseWidth = targetW * fitScale;
+        baseHeight = targetH * fitScale;
+      }
+
+      // pan is measured off the known base size × current scale, not off
+      // getBoundingClientRect, so it stays accurate even mid-zoom
+      function clampPan(value, axis) {
+        var elementSize = (axis === 'x' ? baseWidth : baseHeight) * scale;
+        var viewportSize = axis === 'x' ? window.innerWidth : window.innerHeight;
+        var maxOffset = Math.max(0, (elementSize - viewportSize) / 2);
+        return Math.max(-maxOffset, Math.min(maxOffset, value));
+      }
+
+      function applyTransform() {
+        zoomedIn = scale > 1;
+        lightbox.classList.toggle('is-zoomed', zoomedIn);
+        if (!zoomedIn) {
+          panX = 0;
+          panY = 0;
+        } else {
+          panX = clampPan(panX, 'x');
+          panY = clampPan(panY, 'y');
+        }
+        lightbox.style.transform =
+          'translate(-50%, -50%) translate(' + panX + 'px, ' + panY + 'px) scale(' + scale + ')';
+      }
+
+      function openLightbox(thumb) {
+        var rect = thumb.getBoundingClientRect();
+        lightbox.src = thumb.src;
+        fitBaseSize(rect.width * 1.75, rect.height * 1.75);
+        lightbox.style.width = baseWidth + 'px';
+        lightbox.style.height = baseHeight + 'px';
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        lightbox.classList.remove('is-tracking');
+        applyTransform();
+        imgScrim.classList.add('is-visible');
+        lightbox.classList.add('is-visible');
+        document.body.classList.add('img-no-scroll');
+      }
+
+      function closeLightbox() {
+        imgScrim.classList.remove('is-visible');
+        lightbox.classList.remove('is-visible', 'is-zoomed', 'is-panning');
+        document.body.classList.remove('img-no-scroll');
+      }
+
+      document.querySelectorAll('.img-card img').forEach(function (img) {
+        img.addEventListener('click', function () { openLightbox(img); });
+      });
+
+      // scroll-wheel zoom (desktop) — instant tracking, no transition lag
+      lightbox.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        lightbox.classList.add('is-tracking');
+        scale = Math.max(1, Math.min(MAX_SCALE, scale + (e.deltaY < 0 ? 0.15 : -0.15)));
+        applyTransform();
+      }, { passive: false });
+
+      // desktop drag-to-pan — capped off entirely until actually zoomed in,
+      // same gating principle as the chart scroll-zoom activation
+      lightbox.addEventListener('mousedown', function (e) {
+        if (!zoomedIn) return;
+        isDragging = true;
+        dragMoved = false;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        panStartX = panX;
+        panStartY = panY;
+        lightbox.classList.add('is-panning', 'is-tracking');
+      });
+
+      window.addEventListener('mousemove', function (e) {
+        if (!isDragging) return;
+        var dx = e.clientX - dragStartX;
+        var dy = e.clientY - dragStartY;
+        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) dragMoved = true;
+        panX = panStartX + dx;
+        panY = panStartY + dy;
+        applyTransform();
+      });
+
+      window.addEventListener('mouseup', function () {
+        if (!isDragging) return;
+        isDragging = false;
+        lightbox.classList.remove('is-panning', 'is-tracking');
+        if (dragMoved) {
+          justDragged = true;
+          setTimeout(function () { justDragged = false; }, 250);
+        }
+      });
+
+      // touch: two fingers pinch-zooms, one finger pans (only once zoomed)
+      lightbox.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 2) {
+          pinchStartDist = touchDistance(e.touches);
+          pinchStartScale = scale;
+          lightbox.classList.add('is-tracking');
+        } else if (e.touches.length === 1 && zoomedIn) {
+          isDragging = true;
+          dragMoved = false;
+          dragStartX = e.touches[0].clientX;
+          dragStartY = e.touches[0].clientY;
+          panStartX = panX;
+          panStartY = panY;
+          lightbox.classList.add('is-tracking');
+        }
+      }, { passive: true });
+
+      lightbox.addEventListener('touchmove', function (e) {
+        if (e.touches.length === 2) {
+          e.preventDefault();
+          justPinched = true;
+          var ratio = touchDistance(e.touches) / pinchStartDist;
+          scale = Math.max(1, Math.min(MAX_SCALE, pinchStartScale * ratio));
+          applyTransform();
+        } else if (e.touches.length === 1 && isDragging) {
+          e.preventDefault();
+          var dx = e.touches[0].clientX - dragStartX;
+          var dy = e.touches[0].clientY - dragStartY;
+          if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) dragMoved = true;
+          panX = panStartX + dx;
+          panY = panStartY + dy;
+          applyTransform();
+        }
+      }, { passive: false });
+
+      lightbox.addEventListener('touchend', function (e) {
+        if (e.touches.length < 2) {
+          setTimeout(function () { justPinched = false; }, 300);
+        }
+        if (e.touches.length === 0) {
+          lightbox.classList.remove('is-tracking');
+          if (isDragging) {
+            isDragging = false;
+            if (dragMoved) {
+              justDragged = true;
+              setTimeout(function () { justDragged = false; }, 250);
+            }
+          }
+        }
+      });
+
+      // click/tap the zoomed image to snap back to the 175% base — guarded
+      // so a trailing synthetic click after a pinch or a drag doesn't undo it
+      lightbox.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (justPinched || justDragged) return;
+        if (zoomedIn) {
+          scale = 1;
+          panX = 0;
+          panY = 0;
+          lightbox.classList.remove('is-tracking');
+          applyTransform();
+        }
+      });
+
+      imgScrim.addEventListener('click', closeLightbox);
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeLightbox();
+      });
+    })();
+  </script>
 
 </body>
+
 </html>
